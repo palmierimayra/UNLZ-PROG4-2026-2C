@@ -1,0 +1,21 @@
+@page
+@model Disable2faModel
+@{
+    ViewData["Title"] = "Desactivar verificación en dos pasos";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+<h2 class="h5 fw-bold mb-3">@ViewData["Title"]</h2>
+
+<div class="alert alert-warning" role="alert">
+    <p><strong>Esto solo desactiva la verificación en dos pasos.</strong></p>
+    <p class="mb-0">
+        No cambia la clave que usa tu app de autenticación. Si querés cambiarla,
+        <a asp-page="./ResetAuthenticator">restablecé la clave de la app</a>.
+    </p>
+</div>
+
+<form method="post">
+    <button class="btn btn-danger" type="submit">Desactivar verificación</button>
+</form>

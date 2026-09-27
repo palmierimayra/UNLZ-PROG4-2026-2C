@@ -1,0 +1,24 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="login-wrapper m-0 p-0">
+    <div class="card login-card shadow-sm">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <img src="~/img/Logo.png" alt="Ludoteca" class="login-logo" />
+                <h1 class="h4 fw-bold mt-2 mb-1">@ViewData["Title"]</h1>
+                @if (ViewData["Subtitle"] is string subtitulo)
+                {
+                    <p class="text-secondary mb-0">@subtitulo</p>
+                }
+            </div>
+
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

@@ -1,0 +1,12 @@
+@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Acceso denegado";
+    Layout = "_AuthLayout";
+}
+
+<div class="text-center">
+    <i class="bi bi-shield-lock auth-icono text-danger"></i>
+    <p class="mt-3">No tenés permiso para ver esta página.</p>
+    <a class="btn btn-dark w-100" asp-area="" asp-controller="Home" asp-action="Index">Ir al inicio</a>
+</div>

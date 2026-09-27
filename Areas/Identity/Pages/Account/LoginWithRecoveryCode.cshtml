@@ -1,0 +1,25 @@
+@page
+@model LoginWithRecoveryCodeModel
+@{
+    ViewData["Title"] = "Código de recuperación";
+    ViewData["Subtitle"] = "Este ingreso no se va a recordar hasta que uses tu app de autenticación o desactives la verificación en dos pasos.";
+    Layout = "_AuthLayout";
+}
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+    <div class="form-floating mb-4">
+        <input asp-for="Input.RecoveryCode" class="form-control" autocomplete="off" placeholder="código" />
+        <label asp-for="Input.RecoveryCode"><i class="bi bi-key me-1"></i> Código de recuperación</label>
+        <span asp-validation-for="Input.RecoveryCode" class="text-danger small"></span>
+    </div>
+
+    <button type="submit" class="btn btn-dark btn-lg w-100">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
+    </button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,22 @@
+@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Confirmá tu cuenta";
+    Layout = "_AuthLayout";
+}
+
+<div class="text-center">
+    <i class="bi bi-envelope-check auth-icono"></i>
+    @if (Model.DisplayConfirmAccountLink)
+    {
+        <p class="mt-3">
+            La aplicación todavía no tiene configurado el envío de emails, así que podés confirmar tu cuenta desde acá.
+        </p>
+        <a id="confirm-link" class="btn btn-dark w-100" href="@Model.EmailConfirmationUrl">Confirmar mi cuenta</a>
+    }
+    else
+    {
+        <p class="mt-3">Te enviamos un email para confirmar tu cuenta. Revisá tu bandeja de entrada.</p>
+        <a class="btn btn-dark w-100" asp-page="./Login">Volver a iniciar sesión</a>
+    }
+</div>

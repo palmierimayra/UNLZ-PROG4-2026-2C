@@ -1,0 +1,9 @@
+@page
+@model ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirmación de email";
+    Layout = "_AuthLayout";
+}
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<a class="btn btn-dark w-100" asp-page="./Login">Iniciar sesión</a>

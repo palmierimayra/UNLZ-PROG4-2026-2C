@@ -1,0 +1,29 @@
+@page
+@model ResendEmailConfirmationModel
+@{
+    ViewData["Title"] = "Reenviar confirmación";
+    ViewData["Subtitle"] = "Ingresá tu email y te volvemos a enviar el link de confirmación.";
+    Layout = "_AuthLayout";
+}
+
+<form method="post">
+    <div asp-validation-summary="All" class="alert alert-info py-2" role="alert"></div>
+
+    <div class="form-floating mb-4">
+        <input asp-for="Input.Email" class="form-control" aria-required="true" placeholder="nombre@ejemplo.com" />
+        <label asp-for="Input.Email"><i class="bi bi-envelope me-1"></i> Email</label>
+        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+    </div>
+
+    <button type="submit" class="btn btn-dark btn-lg w-100">
+        <i class="bi bi-send me-1"></i> Reenviar
+    </button>
+</form>
+
+<div class="text-center mt-4 small">
+    <a class="login-link" asp-page="./Login"><i class="bi bi-arrow-left me-1"></i> Volver a iniciar sesión</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

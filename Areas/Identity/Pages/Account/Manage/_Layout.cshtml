@@ -1,0 +1,37 @@
+@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
+    {
+        Layout = parentLayout.ToString();
+    }
+    else
+    {
+        Layout = "/Views/Shared/_Layout.cshtml";
+    }
+}
+
+<div class="py-4">
+    <div class="d-flex align-items-center mb-4">
+        <i class="bi bi-person-circle fs-2 me-3"></i>
+        <div>
+            <h1 class="h3 fw-bold mb-0">Mi cuenta</h1>
+            <p class="text-secondary mb-0">Administrá los datos y la seguridad de tu cuenta</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            <div class="card manage-card shadow-sm">
+                <div class="card-body p-4">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

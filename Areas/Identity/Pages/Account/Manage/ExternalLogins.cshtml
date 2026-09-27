@@ -1,0 +1,53 @@
+@page
+@model ExternalLoginsModel
+@{
+    ViewData["Title"] = "Cuentas externas";
+    ViewData["ActivePage"] = ManageNavPages.ExternalLogins;
+}
+
+<h2 class="h5 fw-bold mb-3">@ViewData["Title"]</h2>
+<partial name="_StatusMessage" for="StatusMessage" />
+@if (Model.CurrentLogins?.Count > 0)
+{
+    <h3 class="h6 fw-semibold">Cuentas vinculadas</h3>
+    <ul class="list-group mb-4">
+        @foreach (var login in Model.CurrentLogins)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span id="@($"login-provider-{login.LoginProvider}")">
+                    @if (login.LoginProvider == "Google")
+                    {
+                        <i class="bi bi-google me-2"></i>
+                    }
+                    @login.ProviderDisplayName
+                </span>
+                @if (Model.ShowRemoveButton)
+                {
+                    <form id="@($"remove-login-{login.LoginProvider}")" asp-page-handler="RemoveLogin" method="post">
+                        <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
+                        <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Quitar @login.ProviderDisplayName de tu cuenta">Quitar</button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+}
+@if (Model.OtherLogins?.Count > 0)
+{
+    <h3 class="h6 fw-semibold">Vincular otra cuenta</h3>
+    <form id="link-login-form" asp-page-handler="LinkLogin" method="post">
+        <div id="socialLoginList">
+            @foreach (var provider in Model.OtherLogins)
+            {
+                <button id="@($"link-login-button-{provider.Name}")" type="submit" class="btn btn-outline-dark mb-2" name="provider" value="@provider.Name" title="Vincular tu cuenta de @provider.DisplayName">
+                    @if (provider.Name == "Google")
+                    {
+                        <i class="bi bi-google me-1"></i>
+                    }
+                    Vincular @provider.DisplayName
+                </button>
+            }
+        </div>
+    </form>
+}

@@ -29,3 +29,93 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* ---------- Login ---------- */
+:root {
+  --ludoteca-rojo: #e31b23;
+}
+
+/* Sin sesión no hay footer: se quita el espacio que se le reservaba */
+body.sin-sesion {
+  margin-bottom: 0;
+}
+
+body.sin-sesion main {
+  padding-bottom: 0 !important;
+}
+
+/* Centra la tarjeta en la pantalla y solo scrollea si no entra */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem 0;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid #e5e5e5;
+  border-top: 4px solid var(--ludoteca-rojo);
+  border-radius: .75rem;
+}
+
+.login-logo {
+  width: 130px;
+  max-width: 60%;
+}
+
+.login-link {
+  color: #212529;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  color: var(--ludoteca-rojo);
+  text-decoration: underline;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+  font-size: .9rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.login-divider span {
+  padding: 0 .75rem;
+}
+
+/* Ícono grande de las páginas de estado (email enviado, cuenta bloqueada, etc.) */
+.auth-icono {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* ---------- Mi cuenta (Identity/Manage) ---------- */
+.manage-card {
+  border: 1px solid #e5e5e5;
+  border-top: 4px solid var(--ludoteca-rojo);
+  border-radius: .75rem;
+}
+
+.manage-nav .nav-link {
+  color: #212529;
+  border-radius: .5rem;
+}
+
+.manage-nav .nav-link:hover {
+  color: var(--ludoteca-rojo);
+}
+
+.manage-nav .nav-link.active {
+  color: #fff;
+  background-color: #212529;
+}

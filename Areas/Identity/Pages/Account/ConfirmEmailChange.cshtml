@@ -1,0 +1,9 @@
+@page
+@model ConfirmEmailChangeModel
+@{
+    ViewData["Title"] = "Cambio de email";
+    Layout = "_AuthLayout";
+}
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<a class="btn btn-dark w-100" asp-area="" asp-controller="Home" asp-action="Index">Ir al inicio</a>
