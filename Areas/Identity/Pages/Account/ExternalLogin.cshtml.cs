@@ -116,6 +116,12 @@ public class ExternalLoginModel : PageModel
         if (result.Succeeded)
         {
             _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity?.Name, info.LoginProvider);
+
+            var usuarioActual = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (usuarioActual != null && await GuardarFotoPerfilAsync(usuarioActual, info))
+            {
+                await _signInManager.RefreshSignInAsync(usuarioActual);
+            }
             return LocalRedirect(returnUrl);
         }
         if (result.IsLockedOut)
@@ -184,6 +190,10 @@ public class ExternalLoginModel : PageModel
         {
             crear = await _userManager.AddLoginAsync(nuevoUsuario, info);
         }
+        if (crear.Succeeded)
+        {
+            crear = await _userManager.AddToRoleAsync(nuevoUsuario, "Socio");
+        }
         if (!crear.Succeeded)
         {
             ErrorMessage = "Error al crear la cuenta: " + string.Join(" ", crear.Errors.Select(e => e.Description));
@@ -196,8 +206,32 @@ public class ExternalLoginModel : PageModel
 
     private async Task<IActionResult> IniciarSesionExternaAsync(ApplicationUser user, ExternalLoginInfo info, string returnUrl)
     {
+        await GuardarFotoPerfilAsync(user, info);
         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
         return LocalRedirect(returnUrl);
+    }
+
+    // Guarda (o actualiza) la URL de la foto de Google como claim del usuario.
+    // Devuelve true si hubo cambios.
+    private async Task<bool> GuardarFotoPerfilAsync(ApplicationUser user, ExternalLoginInfo info)
+    {
+        var foto = info.Principal.FindFirstValue("urn:google:picture");
+        if (string.IsNullOrEmpty(foto))
+        {
+            return false;
+        }
+
+        var actual = (await _userManager.GetClaimsAsync(user)).FirstOrDefault(c => c.Type == "urn:google:picture");
+        if (actual?.Value == foto)
+        {
+            return false;
+        }
+
+        var nueva = new Claim("urn:google:picture", foto);
+        var resultado = actual == null
+            ? await _userManager.AddClaimAsync(user, nueva)
+            : await _userManager.ReplaceClaimAsync(user, actual, nueva);
+        return resultado.Succeeded;
     }
 
     public async Task<IActionResult> OnPostConfirmationAsync(string? returnUrl = null)
@@ -224,6 +258,8 @@ public class ExternalLoginModel : PageModel
                 result = await _userManager.AddLoginAsync(user, info);
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, "Socio");
+
                     _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                     var userId = await _userManager.GetUserIdAsync(user);

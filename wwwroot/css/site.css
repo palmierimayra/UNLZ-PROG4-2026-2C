@@ -119,3 +119,17 @@ body.sin-sesion main {
   color: #fff;
   background-color: #212529;
 }
+
+/* ---------- Menú de usuario (navbar) ---------- */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, .6);
+}
+
+.avatar-icono {
+  font-size: 2rem;
+  line-height: 1;
+}

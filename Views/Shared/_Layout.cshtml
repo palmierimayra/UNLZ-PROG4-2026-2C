@@ -1,7 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @{
-	var autenticado = (await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme)).Succeeded;
+	var sesion = await Context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+	var autenticado = sesion.Succeeded;
+	var usuario = sesion.Principal;
+	var fotoPerfil = usuario?.FindFirst("urn:google:picture")?.Value;
+	var esAdmin = usuario?.IsInRole("Administrador") ?? false;
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -29,16 +33,37 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 					<div class="navbar-nav">
-						<a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+						<a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
 					</div>
-					<a class="btn btn-link nav-link text-light ms-auto me-2" asp-area="Identity" asp-page="/Account/Manage/Index">
-						<i class="bi bi-person-circle me-1"></i> Mi cuenta
-					</a>
-					<form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-						<button type="submit" class="btn btn-outline-light">
-							<i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+					<div class="dropdown ms-auto">
+						<button class="btn btn-link p-0 border-0 text-light dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú de usuario">
+							@if (!string.IsNullOrEmpty(fotoPerfil))
+							{
+								<img src="@fotoPerfil" alt="" class="avatar" referrerpolicy="no-referrer" />
+							}
+							else
+							{
+								<i class="bi bi-person-circle avatar-icono"></i>
+							}
 						</button>
-					</form>
+						<ul class="dropdown-menu dropdown-menu-end shadow">
+							<li><h6 class="dropdown-header">@usuario?.Identity?.Name</h6></li>
+							@if (esAdmin)
+							{
+								<li><a class="dropdown-item" href="~/Juegos/Create"><i class="bi bi-plus-circle me-2"></i>Agregar nuevo juego</a></li>
+								<li><a class="dropdown-item" href="~/Reportes"><i class="bi bi-bar-chart me-2"></i>Reportes tienda</a></li>
+								<li><a class="dropdown-item" href="~/Roles"><i class="bi bi-people me-2"></i>Asignación de roles</a></li>
+								<li><hr class="dropdown-divider" /></li>
+							}
+							<li>
+								<form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+									<button type="submit" class="dropdown-item text-danger">
+										<i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+									</button>
+								</form>
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		</nav>
