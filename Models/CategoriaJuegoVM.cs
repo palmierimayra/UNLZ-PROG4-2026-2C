@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
-using TPLudoteca.Models.Helpers;
+using TPLudoteca.Data.Modelos.Helpers;
 
 namespace TPLudoteca.Models
 {

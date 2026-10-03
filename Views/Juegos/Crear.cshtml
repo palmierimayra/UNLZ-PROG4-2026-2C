@@ -1,0 +1,62 @@
+﻿@model TPLudoteca.Models.JuegoVM
+@{
+    ViewData["Title"] = "Agregar juego";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card manage-card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h4 fw-bold mb-1"><i class="bi bi-plus-circle me-2"></i>Agregar nuevo juego</h1>
+                <p class="text-secondary mb-4">Completá los datos del juego.</p>
+                @if (TempData["Mensaje"] is string mensaje)
+                {
+                    <div class="toast-container position-fixed top-0 end-0 p-3">
+                        <div id="toastMensaje" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <i class="bi bi-check-circle me-1"></i> @mensaje
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <form asp-action="Crear" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="DescripcionJuego" class="form-control" placeholder="Descripción" />
+                        <label asp-for="DescripcionJuego"></label>
+                        <span asp-validation-for="DescripcionJuego" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <select asp-for="IdCategoriaJuego" asp-items="ViewBag.Categorias" class="form-select">
+                            <option value="">Elegí una categoría</option>
+                        </select>
+                        <label asp-for="IdCategoriaJuego">Categoría</label>
+                        <span asp-validation-for="IdCategoriaJuego" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-outline-dark w-50">Cancelar</a>
+                        <button type="submit" class="btn btn-dark w-50">
+                            <i class="bi bi-check2 me-1"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const toastMensaje = document.getElementById('toastMensaje');
+        if (toastMensaje) {
+            bootstrap.Toast.getOrCreateInstance(toastMensaje).show();
+        }
+    </script>
+}

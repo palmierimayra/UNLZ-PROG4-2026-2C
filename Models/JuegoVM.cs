@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TPLudoteca.Models.Helpers;
+using TPLudoteca.Data.Modelos.Helpers;
 
 namespace TPLudoteca.Models
 {
@@ -13,8 +13,9 @@ namespace TPLudoteca.Models
         public string DescripcionJuego { get; set; }
         [ForeignKey(nameof(CategoriaJuegoVM))]
         public int IdCategoriaJuego { get; set; }
-        public CategoriaJuegoVM CategoriaJuegoVM { get; set; }
+        [DisplayName("Categoría del Juego")]
+        public CategoriaJuegoVM? CategoriaJuegoVM { get; set; }
         [NotMapped]
-        public Audit Audit { get; set; }
+        public Audit? Audit { get; set; }
     }
 }
