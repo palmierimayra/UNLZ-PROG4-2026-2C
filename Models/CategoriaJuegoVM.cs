@@ -11,6 +11,6 @@ namespace TPLudoteca.Models
         public int IdCategoriaJuego { get; set; }
         public string DescripcionCategoria {  get; set; }
         [NotMapped]
-        public Audit Audit { get; set; }
+        public Audit? Audit { get; set; }
     }
 }

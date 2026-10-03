@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model TPLudoteca.Models.CategoriaJuegoVM
 @{
+    ViewData["Title"] = "Editar categoría";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card manage-card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h4 fw-bold mb-1"><i class="bi bi-pencil me-2"></i>Editar categoría</h1>
+                <p class="text-secondary mb-4">Modificá los datos de la categoría.</p>
+
+                <form asp-action="Editar" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+                    <input type="hidden" asp-for="IdCategoriaJuego" />
+
+                    <div class="form-floating mb-4">
+                        <input asp-for="DescripcionCategoria" class="form-control" placeholder="Descripción" />
+                        <label asp-for="DescripcionCategoria">Descripción</label>
+                        <span asp-validation-for="DescripcionCategoria" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-outline-dark w-50">Cancelar</a>
+                        <button type="submit" class="btn btn-dark w-50">
+                            <i class="bi bi-check2 me-1"></i> Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
