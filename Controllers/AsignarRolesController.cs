@@ -1,83 +1,193 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using TPLudoteca.Data;
+using TPLudoteca.Models;
 
 namespace TPLudoteca.Controllers
 {
+    [Authorize(Roles = "Administrador", AuthenticationSchemes = "Identity.Application")]
     public class AsignarRolesController : Controller
     {
-        // GET: AsignarRolesController
-        public ActionResult Index()
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public AsignarRolesController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            return View();
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        // GET: AsignarRolesController/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var usuarios = _userManager.Users.OrderBy(u => u.Email).ToList();
+            var listaUsuarios = new List<UsuarioRolVM>();
+
+            foreach (var usuario in usuarios)
+            {
+                var roles = await _userManager.GetRolesAsync(usuario);
+                listaUsuarios.Add(new UsuarioRolVM
+                {
+                    IdUsuario = usuario.Id,
+                    Email = usuario.Email ?? usuario.UserName ?? string.Empty,
+                    Rol = roles.FirstOrDefault(),
+                    Desactivado = await _userManager.IsLockedOutAsync(usuario)
+                });
+            }
+
+            return View(listaUsuarios);
         }
 
-        // GET: AsignarRolesController/Create
-        public ActionResult Create()
+        public async Task<IActionResult> Editar(string id)
         {
-            return View();
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(usuario);
+            var usuarioRol = new UsuarioRolVM
+            {
+                IdUsuario = usuario.Id,
+                Email = usuario.Email ?? usuario.UserName ?? string.Empty,
+                Rol = roles.FirstOrDefault(),
+                RolesDisponibles = ObtenerRolesDisponibles()
+            };
+
+            return View(usuarioRol);
         }
 
-        // POST: AsignarRolesController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Editar(UsuarioRolVM usuarioRol)
         {
-            try
+            usuarioRol.RolesDisponibles = ObtenerRolesDisponibles();
+
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                return View(usuarioRol);
             }
-            catch
+
+            var usuario = await _userManager.FindByIdAsync(usuarioRol.IdUsuario);
+            if (usuario == null)
             {
-                return View();
+                return NotFound();
             }
+
+            if (!await _roleManager.RoleExistsAsync(usuarioRol.Rol!))
+            {
+                ModelState.AddModelError(string.Empty, "El rol elegido no existe.");
+                return View(usuarioRol);
+            }
+
+            if (usuario.Id == _userManager.GetUserId(User) && usuarioRol.Rol != "Administrador")
+            {
+                ModelState.AddModelError(string.Empty, "No podés quitarte el rol de Administrador a vos mismo.");
+                return View(usuarioRol);
+            }
+
+            var rolesActuales = await _userManager.GetRolesAsync(usuario);
+            var resultado = await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+            if (resultado.Succeeded)
+            {
+                resultado = await _userManager.AddToRoleAsync(usuario, usuarioRol.Rol!);
+            }
+
+            if (!resultado.Succeeded)
+            {
+                foreach (var error in resultado.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(usuarioRol);
+            }
+
+            TempData["Mensaje"] = $"Se asignó el rol {usuarioRol.Rol} a {usuarioRol.Email}";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: AsignarRolesController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Desactivar(string id)
         {
-            return View();
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return View(await ConvertirAUsuarioRolVM(usuario));
         }
 
-        // POST: AsignarRolesController/Edit/5
+        [HttpPost]
+        [ActionName("Desactivar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DesactivarConfirmado(string id)
+        {
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            if (usuario.Id == _userManager.GetUserId(User))
+            {
+                ModelState.AddModelError(string.Empty, "No podés desactivar tu propio usuario.");
+                return View(await ConvertirAUsuarioRolVM(usuario));
+            }
+
+            await _userManager.SetLockoutEnabledAsync(usuario, true);
+            var resultado = await _userManager.SetLockoutEndDateAsync(usuario, DateTimeOffset.MaxValue);
+            if (!resultado.Succeeded)
+            {
+                foreach (var error in resultado.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(await ConvertirAUsuarioRolVM(usuario));
+            }
+
+            await _userManager.UpdateSecurityStampAsync(usuario);
+
+            TempData["Mensaje"] = $"Se desactivó el usuario {usuario.Email}";
+            return RedirectToAction(nameof(Index));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Reactivar(string id)
         {
-            try
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
-            {
-                return View();
-            }
+
+            await _userManager.SetLockoutEndDateAsync(usuario, null);
+            await _userManager.ResetAccessFailedCountAsync(usuario);
+
+            TempData["Mensaje"] = $"Se reactivó el usuario {usuario.Email}";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: AsignarRolesController/Delete/5
-        public ActionResult Delete(int id)
+        private async Task<UsuarioRolVM> ConvertirAUsuarioRolVM(ApplicationUser usuario)
         {
-            return View();
+            var roles = await _userManager.GetRolesAsync(usuario);
+            return new UsuarioRolVM
+            {
+                IdUsuario = usuario.Id,
+                Email = usuario.Email ?? usuario.UserName ?? string.Empty,
+                Rol = roles.FirstOrDefault(),
+                Desactivado = await _userManager.IsLockedOutAsync(usuario)
+            };
         }
 
-        // POST: AsignarRolesController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        private List<SelectListItem> ObtenerRolesDisponibles()
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return _roleManager.Roles
+                .OrderBy(r => r.Name)
+                .Select(r => new SelectListItem(r.Name, r.Name))
+                .ToList();
         }
     }
 }
