@@ -133,3 +133,7 @@ body.sin-sesion main {
   font-size: 2rem;
   line-height: 1;
 }
+
+.buscador-usuarios {
+  max-width: 360px;
+}

@@ -21,7 +21,7 @@
                     </div>
 
                     <div class="form-floating mb-4">
-                        <select asp-for="Rol" asp-items="Model.RolesDisponibles" class="form-select">
+                        <select asp-for="Rol" asp-items="ViewBag.Roles" class="form-select">
                             <option value="">Elegí un rol</option>
                         </select>
                         <label asp-for="Rol"></label>

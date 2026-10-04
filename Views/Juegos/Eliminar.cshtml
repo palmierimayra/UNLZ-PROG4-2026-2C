@@ -16,6 +16,9 @@
 
                     <dt class="col-sm-5">Categoría</dt>
                     <dd class="col-sm-7">@ViewBag.NombreCategoria</dd>
+
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.MontoAlquiler)</dt>
+                    <dd class="col-sm-7">@(Model.MontoAlquiler.HasValue ? "$ " + Model.MontoAlquiler.Value.ToString("N2") : "-")</dd>
                 </dl>
 
                 <form asp-action="Eliminar" method="post">

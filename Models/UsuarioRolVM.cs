@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TPLudoteca.Models
 {
@@ -11,7 +10,6 @@ namespace TPLudoteca.Models
         [DisplayName("Rol")]
         [Required(ErrorMessage = "Elegí un rol.")]
         public string? Rol { get; set; }
-        public List<SelectListItem>? RolesDisponibles { get; set; }
         public bool Desactivado { get; set; }
     }
 }

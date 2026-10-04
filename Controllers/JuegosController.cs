@@ -36,6 +36,7 @@ namespace TPLudoteca.Controllers
                 IdJuego = x.IdJuego,
                 DescripcionJuego = x.DescripcionJuego,
                 IdCategoriaJuego = x.IdCategoriaJuego,
+                MontoAlquiler = x.MontoAlquiler,
                 CategoriaJuegoVM = new CategoriaJuegoVM
                 {
                     IdCategoriaJuego = x.CategoriaJuego.IdCategoriaJuego,
@@ -78,6 +79,7 @@ namespace TPLudoteca.Controllers
 
                 juego.DescripcionJuego = nuevoJuego.DescripcionJuego;
                 juego.IdCategoriaJuego = nuevoJuego.IdCategoriaJuego;
+                juego.MontoAlquiler = nuevoJuego.MontoAlquiler;
 
                 juego.Audit = new Audit
                 {
@@ -108,7 +110,8 @@ namespace TPLudoteca.Controllers
             {
                 IdJuego = juegoDDBB.IdJuego,
                 DescripcionJuego = juegoDDBB.DescripcionJuego,
-                IdCategoriaJuego = juegoDDBB.IdCategoriaJuego
+                IdCategoriaJuego = juegoDDBB.IdCategoriaJuego,
+                MontoAlquiler = juegoDDBB.MontoAlquiler
             };
 
             return View(juego);
@@ -129,6 +132,7 @@ namespace TPLudoteca.Controllers
 
                 juegoaModificar.DescripcionJuego = juegoModificado.DescripcionJuego;
                 juegoaModificar.IdCategoriaJuego = juegoModificado.IdCategoriaJuego;
+                juegoaModificar.MontoAlquiler = juegoModificado.MontoAlquiler;
                 juegoaModificar.Audit.FechaModificacion = DateTime.Now;
                 juegoaModificar.Audit.IdUsuarioModificacion = _userManager.GetUserId(User);
 
@@ -153,7 +157,8 @@ namespace TPLudoteca.Controllers
             {
                 IdJuego = juegoDDBB.IdJuego,
                 DescripcionJuego = juegoDDBB.DescripcionJuego,
-                IdCategoriaJuego = juegoDDBB.IdCategoriaJuego
+                IdCategoriaJuego = juegoDDBB.IdCategoriaJuego,
+                MontoAlquiler = juegoDDBB.MontoAlquiler
             };
 
             ViewBag.NombreCategoria = juegoDDBB.CategoriaJuego.DescripcionCategoria;

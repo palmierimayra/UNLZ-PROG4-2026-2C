@@ -23,9 +23,14 @@
             <h1 class="h3 fw-bold mb-0">Juegos</h1>
             <p class="text-secondary mb-0">Catálogo de juegos de la ludoteca</p>
         </div>
-        <a asp-action="Crear" class="btn btn-dark">
-            <i class="bi bi-plus-circle me-1"></i> Agregar nuevo juego
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+            <a asp-action="Crear" class="btn btn-dark">
+                <i class="bi bi-plus-circle me-1"></i> Agregar nuevo juego
+            </a>
+        </div>
     </div>
 
     <div class="card manage-card shadow-sm">
@@ -45,6 +50,7 @@
                             <tr>
                                 <th class="ps-4">@Html.DisplayNameFor(m => m.DescripcionJuego)</th>
                                 <th>Categoría</th>
+                                <th class="text-end">@Html.DisplayNameFor(m => m.MontoAlquiler)</th>
                                 <th class="text-end pe-4">Acciones</th>
                             </tr>
                         </thead>
@@ -56,6 +62,7 @@
                                     <td>
                                         <span class="badge text-bg-secondary">@(juego.CategoriaJuegoVM?.DescripcionCategoria ?? juego.IdCategoriaJuego.ToString())</span>
                                     </td>
+                                    <td class="text-end">@(juego.MontoAlquiler.HasValue ? "$ " + juego.MontoAlquiler.Value.ToString("N2") : "-")</td>
                                     <td class="text-end pe-4">
                                         <a asp-action="Editar" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-dark" title="Editar">
                                             <i class="bi bi-pencil"></i>

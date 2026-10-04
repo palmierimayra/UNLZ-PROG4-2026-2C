@@ -20,6 +20,12 @@
                         <span asp-validation-for="DescripcionJuego" class="text-danger small"></span>
                     </div>
 
+                    <div class="form-floating mb-3">
+                        <input asp-for="MontoAlquiler" type="text" inputmode="decimal" class="form-control" placeholder="Monto" />
+                        <label asp-for="MontoAlquiler"></label>
+                        <span asp-validation-for="MontoAlquiler" class="text-danger small"></span>
+                    </div>
+
                     <div class="form-floating mb-4">
                         <select asp-for="IdCategoriaJuego" asp-items="ViewBag.Categorias" class="form-select">
                             <option value="">Elegí una categoría</option>
@@ -42,4 +48,13 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^\d+(,\d{1,2})?$/.test(value);
+        };
+        $.validator.methods.range = function (value, element, param) {
+            const numero = parseFloat(value.replace(',', '.'));
+            return this.optional(element) || (numero >= param[0] && numero <= param[1]);
+        };
+    </script>
 }

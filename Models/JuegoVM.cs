@@ -15,6 +15,9 @@ namespace TPLudoteca.Models
         public int IdCategoriaJuego { get; set; }
         [DisplayName("Categoría del Juego")]
         public CategoriaJuegoVM? CategoriaJuegoVM { get; set; }
+        [DisplayName("Monto de alquiler")]
+        [Range(0, 99999.99, ErrorMessage = "Ingresá un monto entre 0 y 99.999,99.")]
+        public decimal? MontoAlquiler { get; set; }
         [NotMapped]
         public Audit? Audit { get; set; }
     }
