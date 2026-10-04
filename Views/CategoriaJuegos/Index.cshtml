@@ -3,7 +3,20 @@
     ViewData["Title"] = "Categorías de juegos";
 }
 
-@if (TempData["Mensaje"] is string mensaje)
+@if (TempData["Error"] is string error)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toastMensaje" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle me-1"></i> @error
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+        </div>
+    </div>
+}
+else if (TempData["Mensaje"] is string mensaje)
 {
     <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="toastMensaje" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">

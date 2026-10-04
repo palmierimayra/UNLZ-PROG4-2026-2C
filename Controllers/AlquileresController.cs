@@ -194,6 +194,8 @@ namespace TPLudoteca.Controllers
             };
 
             CargarJuegosDisponibles(alquilerDDBB.IdJuego);
+            ViewBag.FechaRetiroMinima = alquilerDDBB.Audit.FechaAlta.ToString("yyyy-MM-dd");
+            ViewBag.FechaRetiroMaxima = DateTime.Today.AddDays(DiasDePlazo).ToString("yyyy-MM-dd");
 
             return View(alquiler);
         }
@@ -219,6 +221,11 @@ namespace TPLudoteca.Controllers
                 ModelState.AddModelError(nameof(AlquilerVM.FechaRetiro), "La fecha de retiro no puede ser anterior al día en que hiciste el alquiler.");
             }
 
+            if (alquilerModificado.FechaRetiro.Date > DateTime.Today.AddDays(DiasDePlazo))
+            {
+                ModelState.AddModelError(nameof(AlquilerVM.FechaRetiro), $"La fecha de retiro no puede ser posterior al {DateTime.Today.AddDays(DiasDePlazo):dd/MM/yyyy}.");
+            }
+
             Juego? juegoNuevo = null;
             if (alquilerModificado.IdJuego != alquilerDDBB.IdJuego)
             {
@@ -232,6 +239,8 @@ namespace TPLudoteca.Controllers
             if (!ModelState.IsValid)
             {
                 CargarJuegosDisponibles(alquilerDDBB.IdJuego);
+                ViewBag.FechaRetiroMinima = alquilerDDBB.Audit.FechaAlta.ToString("yyyy-MM-dd");
+                ViewBag.FechaRetiroMaxima = DateTime.Today.AddDays(DiasDePlazo).ToString("yyyy-MM-dd");
                 return View(alquilerModificado);
             }
 

@@ -1,13 +1,13 @@
 ﻿@model TPLudoteca.Models.ReporteTiendaVM
 @{
-    ViewData["Title"] = "Reportes de tienda";
+    ViewData["Title"] = "Reportería";
     var porcentajeOcupacion = Model.CopiasTotales > 0 ? (decimal)Model.CopiasAlquiladas * 100 / Model.CopiasTotales : 0;
     var hayAlquileres = Model.TotalAlquileres > 0;
 }
 
 <div class="py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-        <h1 class="h3 fw-bold mb-0">Reportes de tienda</h1>
+        <h1 class="h3 fw-bold mb-0">Reportería</h1>
         <div class="d-flex gap-2">
             <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark">
                 <i class="bi bi-arrow-left me-1"></i> Volver

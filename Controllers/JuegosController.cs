@@ -71,6 +71,7 @@ namespace TPLudoteca.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Mensaje = "Error";
+                ViewBag.Categorias = new SelectList(_categoriaJuegoRepository.ObtenerCategorias(), "IdCategoriaJuego", "DescripcionCategoria");
 
                 return View(nuevoJuego);
             }
@@ -91,14 +92,20 @@ namespace TPLudoteca.Controllers
                     IdUsuarioAlta = _userManager.GetUserId(User)
                 };
 
-                _juegoRepository.AgregarJuego(juego);
+                if (!_juegoRepository.AgregarJuego(juego))
+                {
+                    ModelState.AddModelError(string.Empty, "No se pudo guardar el juego. Probá de nuevo.");
+                    ViewBag.Categorias = new SelectList(_categoriaJuegoRepository.ObtenerCategorias(), "IdCategoriaJuego", "DescripcionCategoria");
+                    return View(nuevoJuego);
+                }
+
                 TempData["Mensaje"] = "Juego creado exitosamente";
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
                 ViewBag.Categorias = new SelectList(_categoriaJuegoRepository.ObtenerCategorias(), "IdCategoriaJuego", "DescripcionCategoria");
-                return View();
+                return View(nuevoJuego);
             }
         }
 
@@ -164,7 +171,9 @@ namespace TPLudoteca.Controllers
             }
             catch
             {
-                return View();
+                ModelState.AddModelError(string.Empty, "No se pudo guardar el juego. Probá de nuevo.");
+                ViewBag.Categorias = new SelectList(_categoriaJuegoRepository.ObtenerCategorias(), "IdCategoriaJuego", "DescripcionCategoria");
+                return View(juegoModificado);
             }
         }
 
@@ -198,17 +207,34 @@ namespace TPLudoteca.Controllers
             try
             {
                 var juegoaEliminar = _juegoRepository.ObtenerJuegoPorId(id);
+                if (juegoaEliminar == null)
+                {
+                    return NotFound();
+                }
+
+                var alquilados = juegoaEliminar.Cantidad - juegoaEliminar.Disponible;
+                if (alquilados > 0)
+                {
+                    TempData["Error"] = $"No se puede eliminar: hay {alquilados} copias alquiladas.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 juegoaEliminar.Audit.FechaBaja = DateTime.Now;
                 juegoaEliminar.Audit.IdUsuarioBaja = _userManager.GetUserId(User);
 
-                _juegoRepository.BorrarJuego(juegoaEliminar);
+                if (!_juegoRepository.BorrarJuego(juegoaEliminar))
+                {
+                    TempData["Error"] = "No se pudo eliminar el juego. Probá de nuevo.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 TempData["Mensaje"] = "Juego eliminado exitosamente";
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                TempData["Error"] = "No se pudo eliminar el juego. Probá de nuevo.";
+                return RedirectToAction(nameof(Index));
             }
         }
     }

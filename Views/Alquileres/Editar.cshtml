@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="form-floating mb-3">
-                        <input asp-for="FechaRetiro" type="date" asp-format="{0:yyyy-MM-dd}" class="form-control" />
+                        <input asp-for="FechaRetiro" type="date" asp-format="{0:yyyy-MM-dd}" min="@ViewBag.FechaRetiroMinima" max="@ViewBag.FechaRetiroMaxima" class="form-control" />
                         <label asp-for="FechaRetiro">Fecha de retiro</label>
                         <span asp-validation-for="FechaRetiro" class="text-danger small"></span>
                     </div>

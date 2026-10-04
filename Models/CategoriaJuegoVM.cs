@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using TPLudoteca.Data.Modelos.Helpers;
@@ -9,6 +10,9 @@ namespace TPLudoteca.Models
     {
         [Key]
         public int IdCategoriaJuego { get; set; }
+        [DisplayName("Descripción")]
+        [Required(ErrorMessage = "Ingresá la descripción de la categoría.")]
+        [StringLength(50, ErrorMessage = "La descripción no puede superar los 50 caracteres.")]
         public string DescripcionCategoria {  get; set; }
         [NotMapped]
         public Audit? Audit { get; set; }

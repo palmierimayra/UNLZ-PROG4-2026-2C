@@ -15,11 +15,13 @@ namespace TPLudoteca.Controllers
     public class CategoriaJuegosController : Controller
     {
         private readonly ICategoriaJuegoRepository _categoriaJuegoRepository;
+        private readonly IJuegoRepository _juegoRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public CategoriaJuegosController(ICategoriaJuegoRepository categoriaJuegoRepository, UserManager<ApplicationUser> userManager)
+        public CategoriaJuegosController(ICategoriaJuegoRepository categoriaJuegoRepository, IJuegoRepository juegoRepository, UserManager<ApplicationUser> userManager)
         {
             _categoriaJuegoRepository = categoriaJuegoRepository;
+            _juegoRepository = juegoRepository;
             _userManager = userManager;
         }
 
@@ -75,13 +77,19 @@ namespace TPLudoteca.Controllers
                     IdUsuarioAlta = _userManager.GetUserId(User)
                 };
 
-                _categoriaJuegoRepository.AgregarCategoria(categoriaJuego);
+                if (!_categoriaJuegoRepository.AgregarCategoria(categoriaJuego))
+                {
+                    ModelState.AddModelError(string.Empty, "No se pudo guardar la categoría. Probá de nuevo.");
+                    return View(nuevaCategoriaJuego);
+                }
+
                 TempData["Mensaje"] = "Categoría creada exitosamente";
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                ModelState.AddModelError(string.Empty, "No se pudo guardar la categoría. Probá de nuevo.");
+                return View(nuevaCategoriaJuego);
             }
         }
 
@@ -105,6 +113,11 @@ namespace TPLudoteca.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editar(int id, CategoriaJuegoVM categoriaModificada)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(categoriaModificada);
+            }
+
             try
             {
                 var categoriaAModificar = _categoriaJuegoRepository.ObtenerCategoriaPorId(id);
@@ -123,7 +136,8 @@ namespace TPLudoteca.Controllers
             }
             catch
             {
-                return View();
+                ModelState.AddModelError(string.Empty, "No se pudo guardar la categoría. Probá de nuevo.");
+                return View(categoriaModificada);
             }
         }
 
@@ -151,17 +165,34 @@ namespace TPLudoteca.Controllers
             try
             {
                 var categoriaAEliminar = _categoriaJuegoRepository.ObtenerCategoriaPorId(id);
+                if (categoriaAEliminar == null)
+                {
+                    return NotFound();
+                }
+
+                var juegosActivos = _juegoRepository.ObtenerJuegos().Count(x => x.IdCategoriaJuego == id && x.Audit.FechaBaja == null);
+                if (juegosActivos > 0)
+                {
+                    TempData["Error"] = $"No se puede eliminar: tiene {juegosActivos} juegos asociados.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 categoriaAEliminar.Audit.FechaBaja = DateTime.Now;
                 categoriaAEliminar.Audit.IdUsuarioBaja = _userManager.GetUserId(User);
 
-                _categoriaJuegoRepository.BorrarCategoria(categoriaAEliminar);
+                if (!_categoriaJuegoRepository.BorrarCategoria(categoriaAEliminar))
+                {
+                    TempData["Error"] = "No se pudo eliminar la categoría. Probá de nuevo.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 TempData["Mensaje"] = "Categoría eliminada exitosamente";
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                TempData["Error"] = "No se pudo eliminar la categoría. Probá de nuevo.";
+                return RedirectToAction(nameof(Index));
             }
         }
     }
