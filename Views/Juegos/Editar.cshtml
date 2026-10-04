@@ -7,8 +7,7 @@
     <div class="col-md-8 col-lg-6">
         <div class="card manage-card shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h4 fw-bold mb-1"><i class="bi bi-pencil me-2"></i>Editar juego</h1>
-                <p class="text-secondary mb-4">Modificá los datos del juego.</p>
+                <h1 class="h4 fw-bold mb-3"><i class="bi bi-pencil me-2"></i>Editar juego</h1>
 
                 <form asp-action="Editar" method="post">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
@@ -25,6 +24,13 @@
                         <label asp-for="MontoAlquiler"></label>
                         <span asp-validation-for="MontoAlquiler" class="text-danger small"></span>
                     </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Cantidad" type="number" min="1" max="1000" step="1" class="form-control" placeholder="Cantidad" />
+                        <label asp-for="Cantidad"></label>
+                        <span asp-validation-for="Cantidad" class="text-danger small"></span>
+                    </div>
+                    <input type="hidden" asp-for="Disponible" />
 
                     <div class="form-floating mb-4">
                         <select asp-for="IdCategoriaJuego" asp-items="ViewBag.Categorias" class="form-select">

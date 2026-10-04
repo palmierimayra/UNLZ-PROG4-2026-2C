@@ -1,0 +1,182 @@
+﻿@model IEnumerable<TPLudoteca.Models.JuegoVM>
+@{
+    ViewData["Title"] = "Alquilar un juego";
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toastMensaje" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle me-1"></i> @error
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h1 class="h3 fw-bold mb-0">Alquilar un juego</h1>
+        <div class="d-flex gap-2">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+            <a asp-action="Index" class="btn btn-dark">
+                <i class="bi bi-clock-history me-1"></i> Mis alquileres
+            </a>
+        </div>
+    </div>
+
+    <div class="card manage-card shadow-sm">
+        <div class="card-body p-0">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="text-center text-secondary py-5">
+                    <i class="bi bi-controller auth-icono"></i>
+                    <p class="mt-3 mb-0">Todavía no hay juegos para alquilar.</p>
+                </div>
+            }
+            else
+            {
+                <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="input-group buscador-usuarios">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="search" id="buscadorJuegos" class="form-control" placeholder="Buscar por juego o categoría" aria-label="Buscar juegos" autocomplete="off" />
+                    </div>
+                    <span class="text-secondary small"><i class="bi bi-calendar-check me-1"></i>Plazo de devolución: @ViewBag.DiasDePlazo días</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">@Html.DisplayNameFor(m => m.DescripcionJuego)</th>
+                                <th>Categoría</th>
+                                <th class="text-end">@Html.DisplayNameFor(m => m.MontoAlquiler)</th>
+                                <th class="text-center">@Html.DisplayNameFor(m => m.Disponible)</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaJuegos">
+                            @foreach (var juego in Model)
+                            {
+                                var sePuedeAlquilar = juego.Disponible > 0 && juego.MontoAlquiler.HasValue;
+                                <tr>
+                                    <td class="ps-4">@juego.DescripcionJuego</td>
+                                    <td>
+                                        <span class="badge text-bg-secondary">@juego.CategoriaJuegoVM?.DescripcionCategoria</span>
+                                    </td>
+                                    <td class="text-end">@(juego.MontoAlquiler.HasValue ? "$ " + juego.MontoAlquiler.Value.ToString("N2") : "-")</td>
+                                    <td class="text-center">
+                                        <span class="badge @(juego.Disponible > 0 ? "text-bg-success" : "text-bg-danger")">@juego.Disponible de @juego.Cantidad</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        @if (sePuedeAlquilar)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-dark"
+                                                    data-bs-toggle="modal" data-bs-target="#modalAlquilar"
+                                                    data-id="@juego.IdJuego"
+                                                    data-juego="@juego.DescripcionJuego"
+                                                    data-categoria="@juego.CategoriaJuegoVM?.DescripcionCategoria"
+                                                    data-monto="$ @juego.MontoAlquiler!.Value.ToString("N2")">
+                                                <i class="bi bi-bag-plus me-1"></i> Alquilar
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Sin stock</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            <tr id="sinResultados" class="d-none">
+                                <td colspan="5" class="text-center text-secondary py-4">No se encontraron juegos.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAlquilar" tabindex="-1" aria-labelledby="modalAlquilarTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content manage-card shadow">
+            <form asp-action="Crear" method="post">
+                <input type="hidden" name="idJuego" id="modalIdJuego" />
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="modal-title h5 fw-bold" id="modalAlquilarTitulo"><i class="bi bi-bag-plus me-2"></i>Confirmar alquiler</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Juego</dt>
+                        <dd class="col-sm-7" id="modalJuego"></dd>
+
+                        <dt class="col-sm-5">Categoría</dt>
+                        <dd class="col-sm-7" id="modalCategoria"></dd>
+
+                        <dt class="col-sm-5">Monto</dt>
+                        <dd class="col-sm-7 fw-bold" id="modalMonto"></dd>
+
+                        <dt class="col-sm-5">Devolución</dt>
+                        <dd class="col-sm-7">Antes del @DateTime.Today.AddDays((int)ViewBag.DiasDePlazo).ToString("dd/MM/yyyy")</dd>
+                    </dl>
+                    <div class="alert alert-info small mt-3 mb-0" role="alert">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Si lo devolvés después de esa fecha, se cobra un recargo del @(((decimal)ViewBag.PorcentajeMora).ToString("N0"))% del valor del juego por cada día de demora.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-check2 me-1"></i> Confirmar alquiler
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const toastMensaje = document.getElementById('toastMensaje');
+        if (toastMensaje) {
+            bootstrap.Toast.getOrCreateInstance(toastMensaje).show();
+        }
+
+        const modalAlquilar = document.getElementById('modalAlquilar');
+        modalAlquilar.addEventListener('show.bs.modal', evento => {
+            const boton = evento.relatedTarget;
+            document.getElementById('modalIdJuego').value = boton.dataset.id;
+            document.getElementById('modalJuego').textContent = boton.dataset.juego;
+            document.getElementById('modalCategoria').textContent = boton.dataset.categoria;
+            document.getElementById('modalMonto').textContent = boton.dataset.monto;
+        });
+
+        const buscador = document.getElementById('buscadorJuegos');
+        if (buscador) {
+            const filas = document.querySelectorAll('#tablaJuegos tr:not(#sinResultados)');
+            const sinResultados = document.getElementById('sinResultados');
+
+            buscador.addEventListener('input', () => {
+                const texto = buscador.value.trim().toLowerCase();
+                let visibles = 0;
+
+                filas.forEach(fila => {
+                    const coincide = fila.textContent.toLowerCase().includes(texto);
+                    fila.classList.toggle('d-none', !coincide);
+                    if (coincide) {
+                        visibles++;
+                    }
+                });
+
+                sinResultados.classList.toggle('d-none', visibles > 0);
+            });
+        }
+    </script>
+}

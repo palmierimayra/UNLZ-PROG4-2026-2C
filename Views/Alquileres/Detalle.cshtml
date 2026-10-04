@@ -1,0 +1,73 @@
+﻿@model TPLudoteca.Models.AlquilerVM
+@{
+    ViewData["Title"] = "Detalle del alquiler";
+    var devuelto = Model.FechaDevolucionReal != null;
+    var conDemora = Model.DiasDemora.HasValue && Model.DiasDemora > 0;
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card manage-card shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h1 class="h4 fw-bold mb-0"><i class="bi bi-receipt me-2"></i>Detalle del alquiler</h1>
+                    @if (devuelto)
+                    {
+                        <span class="badge text-bg-secondary">Devuelto</span>
+                    }
+                    else if (conDemora)
+                    {
+                        <span class="badge text-bg-danger">Vencido</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-success">En curso</span>
+                    }
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-6">Juego</dt>
+                    <dd class="col-sm-6">@Model.JuegoVM?.DescripcionJuego</dd>
+
+                    <dt class="col-sm-6">Fecha de retiro</dt>
+                    <dd class="col-sm-6">@Model.FechaRetiro.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-6">Devolución estimada</dt>
+                    <dd class="col-sm-6">@Model.FechaDevolucionEstimada.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-6">Devolución real</dt>
+                    <dd class="col-sm-6">@(devuelto ? Model.FechaDevolucionReal!.Value.ToString("dd/MM/yyyy") : "-")</dd>
+
+                    <dt class="col-sm-6">Monto del alquiler</dt>
+                    <dd class="col-sm-6">$ @Model.MontoAlquiler.ToString("N2")</dd>
+
+                    @if (conDemora)
+                    {
+                        <dt class="col-sm-6">Días de demora</dt>
+                        <dd class="col-sm-6">@Model.DiasDemora</dd>
+
+                        <dt class="col-sm-6">Recargo (@Model.Recargo?.ToString("N0")% por día)</dt>
+                        <dd class="col-sm-6">$ @Model.MontoRecargo?.ToString("N2")</dd>
+                    }
+
+                    <dt class="col-sm-6 border-top pt-2">Total @(devuelto ? "" : "a la fecha")</dt>
+                    <dd class="col-sm-6 border-top pt-2 fw-bold">$ @Model.MontoTotal.ToString("N2")</dd>
+                </dl>
+
+                @if (!devuelto && conDemora)
+                {
+                    <div class="alert alert-warning small mt-3 mb-0" role="alert">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        El plazo de devolución venció. El recargo sigue aumentando hasta que devuelvas el juego.
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <a asp-action="Index" class="btn btn-outline-dark w-100">
+                        <i class="bi bi-arrow-left me-1"></i> Volver a mis alquileres
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

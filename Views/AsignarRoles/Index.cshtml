@@ -87,14 +87,24 @@
                                         </a>
                                         @if (usuario.IdUsuario != idUsuarioActual)
                                         {
-                                            <form asp-action="CambiarEstado" asp-route-id="@usuario.IdUsuario" method="post" class="d-inline"
-                                                  onsubmit="@(usuario.Desactivado ? "" : "return confirm('¿Seguro que querés desactivar este usuario? No va a poder iniciar sesión hasta que lo reactives.');")">
-                                                <button type="submit"
-                                                        class="btn btn-sm @(usuario.Desactivado ? "btn-outline-success" : "btn-outline-danger")"
-                                                        title="@(usuario.Desactivado ? "Reactivar usuario" : "Desactivar usuario")">
-                                                    <i class="bi @(usuario.Desactivado ? "bi-person-check" : "bi-person-slash")"></i>
+                                            if (usuario.Desactivado)
+                                            {
+                                                <form asp-action="CambiarEstado" asp-route-id="@usuario.IdUsuario" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Reactivar usuario">
+                                                        <i class="bi bi-person-check"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Desactivar usuario"
+                                                        data-bs-toggle="modal" data-bs-target="#modalDesactivar"
+                                                        data-url="@Url.Action("CambiarEstado", new { id = usuario.IdUsuario })"
+                                                        data-email="@usuario.Email"
+                                                        data-rol="@(string.IsNullOrEmpty(usuario.Rol) ? "Sin rol" : usuario.Rol)">
+                                                    <i class="bi bi-person-slash"></i>
                                                 </button>
-                                            </form>
+                                            }
                                         }
                                     </td>
                                 </tr>
@@ -110,12 +120,53 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalDesactivar" tabindex="-1" aria-labelledby="modalDesactivarTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content manage-card shadow">
+            <form id="formDesactivar" asp-action="CambiarEstado" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="modal-title h5 fw-bold" id="modalDesactivarTitulo"><i class="bi bi-person-slash me-2"></i>Desactivar usuario</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Seguro que querés desactivar este usuario?</p>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8" id="modalEmail"></dd>
+
+                        <dt class="col-sm-4">Rol</dt>
+                        <dd class="col-sm-8" id="modalRol"></dd>
+                    </dl>
+                    <div class="alert alert-info small mt-3 mb-0" role="alert">
+                        <i class="bi bi-info-circle me-1"></i>
+                        No va a poder iniciar sesión hasta que lo reactives. Sus datos y su historial de alquileres se conservan.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-person-slash me-1"></i> Desactivar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         const toastMensaje = document.getElementById('toastMensaje');
         if (toastMensaje) {
             bootstrap.Toast.getOrCreateInstance(toastMensaje).show();
         }
+
+        const modalDesactivar = document.getElementById('modalDesactivar');
+        modalDesactivar.addEventListener('show.bs.modal', evento => {
+            const boton = evento.relatedTarget;
+            document.getElementById('formDesactivar').action = boton.dataset.url;
+            document.getElementById('modalEmail').textContent = boton.dataset.email;
+            document.getElementById('modalRol').textContent = boton.dataset.rol;
+        });
 
         const buscador = document.getElementById('buscadorUsuarios');
         if (buscador) {

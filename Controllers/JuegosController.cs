@@ -37,6 +37,8 @@ namespace TPLudoteca.Controllers
                 DescripcionJuego = x.DescripcionJuego,
                 IdCategoriaJuego = x.IdCategoriaJuego,
                 MontoAlquiler = x.MontoAlquiler,
+                Cantidad = x.Cantidad,
+                Disponible = x.Disponible,
                 CategoriaJuegoVM = new CategoriaJuegoVM
                 {
                     IdCategoriaJuego = x.CategoriaJuego.IdCategoriaJuego,
@@ -80,6 +82,8 @@ namespace TPLudoteca.Controllers
                 juego.DescripcionJuego = nuevoJuego.DescripcionJuego;
                 juego.IdCategoriaJuego = nuevoJuego.IdCategoriaJuego;
                 juego.MontoAlquiler = nuevoJuego.MontoAlquiler;
+                juego.Cantidad = nuevoJuego.Cantidad;
+                juego.Disponible = nuevoJuego.Cantidad;
 
                 juego.Audit = new Audit
                 {
@@ -111,7 +115,9 @@ namespace TPLudoteca.Controllers
                 IdJuego = juegoDDBB.IdJuego,
                 DescripcionJuego = juegoDDBB.DescripcionJuego,
                 IdCategoriaJuego = juegoDDBB.IdCategoriaJuego,
-                MontoAlquiler = juegoDDBB.MontoAlquiler
+                MontoAlquiler = juegoDDBB.MontoAlquiler,
+                Cantidad = juegoDDBB.Cantidad,
+                Disponible = juegoDDBB.Disponible
             };
 
             return View(juego);
@@ -122,6 +128,12 @@ namespace TPLudoteca.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editar(int id, JuegoVM juegoModificado)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categorias = new SelectList(_categoriaJuegoRepository.ObtenerCategorias(), "IdCategoriaJuego", "DescripcionCategoria");
+                return View(juegoModificado);
+            }
+
             try
             {
                 var juegoaModificar = _juegoRepository.ObtenerJuegoPorId(id);
@@ -130,9 +142,19 @@ namespace TPLudoteca.Controllers
                     return NotFound();
                 }
 
+                var alquilados = juegoaModificar.Cantidad - juegoaModificar.Disponible;
+                if (juegoModificado.Cantidad < alquilados)
+                {
+                    ModelState.AddModelError(nameof(JuegoVM.Cantidad), $"Hay {alquilados} copias alquiladas, la cantidad no puede ser menor.");
+                    ViewBag.Categorias = new SelectList(_categoriaJuegoRepository.ObtenerCategorias(), "IdCategoriaJuego", "DescripcionCategoria");
+                    return View(juegoModificado);
+                }
+
                 juegoaModificar.DescripcionJuego = juegoModificado.DescripcionJuego;
                 juegoaModificar.IdCategoriaJuego = juegoModificado.IdCategoriaJuego;
                 juegoaModificar.MontoAlquiler = juegoModificado.MontoAlquiler;
+                juegoaModificar.Cantidad = juegoModificado.Cantidad;
+                juegoaModificar.Disponible = juegoModificado.Cantidad - alquilados;
                 juegoaModificar.Audit.FechaModificacion = DateTime.Now;
                 juegoaModificar.Audit.IdUsuarioModificacion = _userManager.GetUserId(User);
 
@@ -158,7 +180,9 @@ namespace TPLudoteca.Controllers
                 IdJuego = juegoDDBB.IdJuego,
                 DescripcionJuego = juegoDDBB.DescripcionJuego,
                 IdCategoriaJuego = juegoDDBB.IdCategoriaJuego,
-                MontoAlquiler = juegoDDBB.MontoAlquiler
+                MontoAlquiler = juegoDDBB.MontoAlquiler,
+                Cantidad = juegoDDBB.Cantidad,
+                Disponible = juegoDDBB.Disponible
             };
 
             ViewBag.NombreCategoria = juegoDDBB.CategoriaJuego.DescripcionCategoria;

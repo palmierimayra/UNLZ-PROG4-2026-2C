@@ -1,5 +1,265 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using System.Globalization
+@model IEnumerable<TPLudoteca.Models.AlquilerVM>
 @{
+    ViewData["Title"] = "Maestro de alquileres";
+    var porcentajeMora = ((decimal)ViewBag.PorcentajeMora).ToString(CultureInfo.InvariantCulture);
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toastMensaje" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle me-1"></i> @error
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+        </div>
+    </div>
+}
+else if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toastMensaje" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle me-1"></i> @mensaje
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h1 class="h3 fw-bold mb-0">Maestro de alquileres</h1>
+        <a asp-action="Index" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+
+    <div class="card manage-card shadow-sm">
+        <div class="card-body p-0">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="text-center text-secondary py-5">
+                    <i class="bi bi-journal-text auth-icono"></i>
+                    <p class="mt-3 mb-0">Todavía no hay alquileres registrados.</p>
+                </div>
+            }
+            else
+            {
+                <div class="p-3 border-bottom d-flex flex-wrap align-items-center gap-2">
+                    <div class="input-group buscador-usuarios">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="search" id="buscadorAlquileres" class="form-control" placeholder="Buscar por socio o juego" aria-label="Buscar alquileres" autocomplete="off" />
+                    </div>
+                    <select id="filtroEstado" class="form-select w-auto" aria-label="Filtrar por estado">
+                        <option value="">Todos los estados</option>
+                        <option value="en-curso">En curso</option>
+                        <option value="vencido">Vencidos</option>
+                        <option value="devuelto">Devueltos</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Socio</th>
+                                <th>Juego</th>
+                                <th>Retiro</th>
+                                <th>Devolución estimada</th>
+                                <th>Devolución real</th>
+                                <th>Estado</th>
+                                <th class="text-end">Monto</th>
+                                <th class="text-end">Recargo</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaAlquileres">
+                            @foreach (var alquiler in Model)
+                            {
+                                var devuelto = alquiler.FechaDevolucionReal != null;
+                                var vencido = !devuelto && DateTime.Today > alquiler.FechaDevolucionEstimada.Date;
+                                var estado = devuelto ? "devuelto" : vencido ? "vencido" : "en-curso";
+                                <tr data-estado="@estado">
+                                    <td class="ps-4">@alquiler.EmailUsuario</td>
+                                    <td>@alquiler.JuegoVM?.DescripcionJuego</td>
+                                    <td>@alquiler.FechaRetiro.ToString("dd/MM/yyyy")</td>
+                                    <td>@alquiler.FechaDevolucionEstimada.ToString("dd/MM/yyyy")</td>
+                                    <td>@(devuelto ? alquiler.FechaDevolucionReal!.Value.ToString("dd/MM/yyyy") : "-")</td>
+                                    <td>
+                                        @if (devuelto)
+                                        {
+                                            <span class="badge text-bg-secondary">Devuelto</span>
+                                            @if (alquiler.DiasDemora > 0)
+                                            {
+                                                <span class="badge text-bg-warning">@alquiler.DiasDemora días de demora</span>
+                                            }
+                                        }
+                                        else if (vencido)
+                                        {
+                                            <span class="badge text-bg-danger">Vencido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge text-bg-success">En curso</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">$ @alquiler.MontoAlquiler.ToString("N2")</td>
+                                    <td class="text-end">@(alquiler.MontoRecargo > 0 ? "$ " + alquiler.MontoRecargo.Value.ToString("N2") : "-")</td>
+                                    <td class="text-end fw-semibold">$ @alquiler.MontoTotal.ToString("N2")</td>
+                                    <td class="text-end pe-4 text-nowrap">
+                                        @if (!devuelto)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-dark" title="Registrar devolución"
+                                                    data-bs-toggle="modal" data-bs-target="#modalDevolucion"
+                                                    data-url="@Url.Action("RegistrarDevolucion", new { id = alquiler.IdAlquiler })"
+                                                    data-socio="@alquiler.EmailUsuario"
+                                                    data-juego="@alquiler.JuegoVM?.DescripcionJuego"
+                                                    data-retiro="@alquiler.FechaRetiro.ToString("yyyy-MM-dd")"
+                                                    data-estimada="@alquiler.FechaDevolucionEstimada.ToString("yyyy-MM-dd")"
+                                                    data-monto="@alquiler.MontoAlquiler.ToString(CultureInfo.InvariantCulture)">
+                                                <i class="bi bi-box-arrow-in-down me-1"></i> Devolución
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            <tr id="sinResultados" class="d-none">
+                                <td colspan="10" class="text-center text-secondary py-4">No se encontraron alquileres.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDevolucion" tabindex="-1" aria-labelledby="modalDevolucionTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content manage-card shadow">
+            <form id="formDevolucion" asp-action="RegistrarDevolucion" method="post">
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="modal-title h5 fw-bold" id="modalDevolucionTitulo"><i class="bi bi-box-arrow-in-down me-2"></i>Registrar devolución</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-3">
+                        <dt class="col-sm-5">Socio</dt>
+                        <dd class="col-sm-7" id="modalSocio"></dd>
+
+                        <dt class="col-sm-5">Juego</dt>
+                        <dd class="col-sm-7" id="modalJuego"></dd>
+
+                        <dt class="col-sm-5">Devolución estimada</dt>
+                        <dd class="col-sm-7" id="modalEstimada"></dd>
+
+                        <dt class="col-sm-5">Monto del alquiler</dt>
+                        <dd class="col-sm-7" id="modalMonto"></dd>
+                    </dl>
+
+                    <div class="form-floating mb-3">
+                        <input type="date" id="fechaDevolucionReal" name="fechaDevolucionReal" class="form-control" required />
+                        <label for="fechaDevolucionReal">Fecha de devolución</label>
+                    </div>
+
+                    <div id="resumenSinDemora" class="alert alert-success small mb-0" role="alert">
+                        <i class="bi bi-check-circle me-1"></i> Devuelto en término, sin recargo.
+                    </div>
+                    <div id="resumenConDemora" class="alert alert-warning small mb-0 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <span id="resumenDias"></span> días de demora. Recargo: <strong id="resumenRecargo"></strong>. Total a cobrar: <strong id="resumenTotal"></strong>.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-check2 me-1"></i> Registrar devolución
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const toastMensaje = document.getElementById('toastMensaje');
+        if (toastMensaje) {
+            bootstrap.Toast.getOrCreateInstance(toastMensaje).show();
+        }
+
+        const porcentajeMora = @porcentajeMora;
+        const formatoPesos = valor => '$ ' + valor.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const formatoFecha = texto => texto.split('-').reverse().join('/');
+        const hoy = new Date().toLocaleDateString('en-CA');
+
+        const fechaDevolucion = document.getElementById('fechaDevolucionReal');
+        let estimadaActual = '';
+        let montoActual = 0;
+
+        function actualizarResumen() {
+            const dias = Math.max(0, Math.round((new Date(fechaDevolucion.value) - new Date(estimadaActual)) / 86400000));
+            const conDemora = fechaDevolucion.value && dias > 0;
+            document.getElementById('resumenSinDemora').classList.toggle('d-none', conDemora);
+            document.getElementById('resumenConDemora').classList.toggle('d-none', !conDemora);
+            if (conDemora) {
+                const recargo = montoActual * porcentajeMora * dias;
+                document.getElementById('resumenDias').textContent = dias;
+                document.getElementById('resumenRecargo').textContent = formatoPesos(recargo);
+                document.getElementById('resumenTotal').textContent = formatoPesos(montoActual + recargo);
+            }
+        }
+
+        document.getElementById('modalDevolucion').addEventListener('show.bs.modal', evento => {
+            const boton = evento.relatedTarget;
+            estimadaActual = boton.dataset.estimada;
+            montoActual = parseFloat(boton.dataset.monto);
+
+            document.getElementById('formDevolucion').action = boton.dataset.url;
+            document.getElementById('modalSocio').textContent = boton.dataset.socio;
+            document.getElementById('modalJuego').textContent = boton.dataset.juego;
+            document.getElementById('modalEstimada').textContent = formatoFecha(estimadaActual);
+            document.getElementById('modalMonto').textContent = formatoPesos(montoActual);
+
+            fechaDevolucion.min = boton.dataset.retiro;
+            fechaDevolucion.max = hoy;
+            fechaDevolucion.value = hoy;
+            actualizarResumen();
+        });
+
+        fechaDevolucion.addEventListener('input', actualizarResumen);
+
+        const buscador = document.getElementById('buscadorAlquileres');
+        const filtroEstado = document.getElementById('filtroEstado');
+        if (buscador) {
+            const filas = document.querySelectorAll('#tablaAlquileres tr:not(#sinResultados)');
+            const sinResultados = document.getElementById('sinResultados');
+
+            function filtrar() {
+                const texto = buscador.value.trim().toLowerCase();
+                const estado = filtroEstado.value;
+                let visibles = 0;
+
+                filas.forEach(fila => {
+                    const coincide = fila.textContent.toLowerCase().includes(texto) && (!estado || fila.dataset.estado === estado);
+                    fila.classList.toggle('d-none', !coincide);
+                    if (coincide) {
+                        visibles++;
+                    }
+                });
+
+                sinResultados.classList.toggle('d-none', visibles > 0);
+            }
+
+            buscador.addEventListener('input', filtrar);
+            filtroEstado.addEventListener('change', filtrar);
+        }
+    </script>
 }

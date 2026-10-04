@@ -8,9 +8,11 @@ namespace TPLudoteca.Models
     {
         [Key]
         public int IdAlquiler {  get; set; }
-        public string IdUsuario { get; set; }
+        public string? IdUsuario { get; set; }
+        public string? EmailUsuario { get; set; }
         [ForeignKey(nameof(JuegoVM))]
         public int IdJuego { get; set; }
+        public JuegoVM? JuegoVM { get; set; }
         public DateTime FechaRetiro { get; set; }
         public DateTime FechaDevolucionEstimada { get; set; }
         public DateTime? FechaDevolucionReal {  get; set; }
@@ -20,6 +22,6 @@ namespace TPLudoteca.Models
         public decimal? MontoRecargo { get; set; }
         public decimal MontoTotal { get; set; }
         [NotMapped]
-        public Audit Audit { get; set; }
+        public Audit? Audit { get; set; }
     }
 }

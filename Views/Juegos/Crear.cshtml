@@ -7,8 +7,7 @@
     <div class="col-md-8 col-lg-6">
         <div class="card manage-card shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h4 fw-bold mb-1"><i class="bi bi-plus-circle me-2"></i>Agregar nuevo juego</h1>
-                <p class="text-secondary mb-4">Completá los datos del juego.</p>
+                <h1 class="h4 fw-bold mb-3"><i class="bi bi-plus-circle me-2"></i>Agregar nuevo juego</h1>
                 @if (TempData["Mensaje"] is string mensaje)
                 {
                     <div class="toast-container position-fixed top-0 end-0 p-3">
@@ -35,6 +34,12 @@
                         <input asp-for="MontoAlquiler" type="text" inputmode="decimal" class="form-control" placeholder="Monto" />
                         <label asp-for="MontoAlquiler"></label>
                         <span asp-validation-for="MontoAlquiler" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Cantidad" type="number" min="1" max="1000" step="1" class="form-control" placeholder="Cantidad" />
+                        <label asp-for="Cantidad"></label>
+                        <span asp-validation-for="Cantidad" class="text-danger small"></span>
                     </div>
 
                     <div class="form-floating mb-4">

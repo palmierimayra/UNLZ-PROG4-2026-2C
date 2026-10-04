@@ -18,6 +18,11 @@ namespace TPLudoteca.Models
         [DisplayName("Monto de alquiler")]
         [Range(0, 99999.99, ErrorMessage = "Ingresá un monto entre 0 y 99.999,99.")]
         public decimal? MontoAlquiler { get; set; }
+        [DisplayName("Cantidad")]
+        [Range(1, 1000, ErrorMessage = "La cantidad tiene que ser entre 1 y 1000.")]
+        public int Cantidad { get; set; }
+        [DisplayName("Disponibles")]
+        public int Disponible { get; set; }
         [NotMapped]
         public Audit? Audit { get; set; }
     }

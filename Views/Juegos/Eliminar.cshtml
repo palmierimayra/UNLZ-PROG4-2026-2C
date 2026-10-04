@@ -7,7 +7,7 @@
     <div class="col-md-8 col-lg-6">
         <div class="card manage-card shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h4 fw-bold mb-1"><i class="bi bi-trash me-2"></i>Eliminar juego</h1>
+                <h1 class="h4 fw-bold mb-3"><i class="bi bi-trash me-2"></i>Eliminar juego</h1>
                 <p class="text-secondary mb-4">¿Seguro que querés eliminar este juego?</p>
 
                 <dl class="row mb-4">
@@ -19,6 +19,9 @@
 
                     <dt class="col-sm-5">@Html.DisplayNameFor(m => m.MontoAlquiler)</dt>
                     <dd class="col-sm-7">@(Model.MontoAlquiler.HasValue ? "$ " + Model.MontoAlquiler.Value.ToString("N2") : "-")</dd>
+
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.Disponible)</dt>
+                    <dd class="col-sm-7">@Model.Disponible de @Model.Cantidad</dd>
                 </dl>
 
                 <form asp-action="Eliminar" method="post">

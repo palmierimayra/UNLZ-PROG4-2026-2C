@@ -137,3 +137,8 @@ body.sin-sesion main {
 .buscador-usuarios {
   max-width: 360px;
 }
+
+.grafico-contenedor {
+  position: relative;
+  height: 280px;
+}

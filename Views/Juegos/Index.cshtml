@@ -21,7 +21,6 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
             <h1 class="h3 fw-bold mb-0">Juegos</h1>
-            <p class="text-secondary mb-0">Catálogo de juegos de la ludoteca</p>
         </div>
         <div class="d-flex gap-2">
             <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark">
@@ -51,6 +50,7 @@
                                 <th class="ps-4">@Html.DisplayNameFor(m => m.DescripcionJuego)</th>
                                 <th>Categoría</th>
                                 <th class="text-end">@Html.DisplayNameFor(m => m.MontoAlquiler)</th>
+                                <th class="text-center">@Html.DisplayNameFor(m => m.Disponible)</th>
                                 <th class="text-end pe-4">Acciones</th>
                             </tr>
                         </thead>
@@ -63,6 +63,9 @@
                                         <span class="badge text-bg-secondary">@(juego.CategoriaJuegoVM?.DescripcionCategoria ?? juego.IdCategoriaJuego.ToString())</span>
                                     </td>
                                     <td class="text-end">@(juego.MontoAlquiler.HasValue ? "$ " + juego.MontoAlquiler.Value.ToString("N2") : "-")</td>
+                                    <td class="text-center">
+                                        <span class="badge @(juego.Disponible > 0 ? "text-bg-success" : "text-bg-danger")">@juego.Disponible de @juego.Cantidad</span>
+                                    </td>
                                     <td class="text-end pe-4">
                                         <a asp-action="Editar" asp-route-id="@juego.IdJuego" class="btn btn-sm btn-outline-dark" title="Editar">
                                             <i class="bi bi-pencil"></i>
