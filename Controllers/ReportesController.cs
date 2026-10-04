@@ -44,10 +44,16 @@ namespace TPLudoteca.Controllers
                 .ToList();
 
             var primerDiaDelMes = new DateTime(hoy.Year, hoy.Month, 1);
-            var ultimosMeses = Enumerable.Range(0, 6)
-                .Select(i => primerDiaDelMes.AddMonths(i - 5))
-                .ToList();
             var cultura = new CultureInfo("es-AR");
+
+            List<string> mesesNombres = new List<string>();
+            List<int> mesesCantidades = new List<int>();
+            for (int i = 5; i >= 0; i--)
+            {
+                var mes = primerDiaDelMes.AddMonths(-i);
+                mesesNombres.Add(cultura.TextInfo.ToTitleCase(mes.ToString("MMM yyyy", cultura)));
+                mesesCantidades.Add(alquileresDDBB.Count(x => x.FechaRetiro.Year == mes.Year && x.FechaRetiro.Month == mes.Month));
+            }
 
             ReporteTiendaVM reporte = new ReporteTiendaVM
             {
@@ -67,8 +73,8 @@ namespace TPLudoteca.Controllers
                 CategoriasCantidades = alquileresPorCategoria.Select(g => g.Count()).ToList(),
                 TopJuegosNombres = alquileresPorJuego.Take(5).Select(g => g.Key).ToList(),
                 TopJuegosCantidades = alquileresPorJuego.Take(5).Select(g => g.Count()).ToList(),
-                MesesNombres = ultimosMeses.Select(m => cultura.TextInfo.ToTitleCase(m.ToString("MMM yyyy", cultura))).ToList(),
-                MesesCantidades = ultimosMeses.Select(m => alquileresDDBB.Count(x => x.FechaRetiro.Year == m.Year && x.FechaRetiro.Month == m.Month)).ToList()
+                MesesNombres = mesesNombres,
+                MesesCantidades = mesesCantidades
             };
 
             return View(reporte);

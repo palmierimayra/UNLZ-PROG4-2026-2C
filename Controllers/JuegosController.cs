@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,6 +13,7 @@ using TPLudoteca.Models;
 
 namespace TPLudoteca.Controllers
 {
+    [Authorize(Roles = "Administrador", AuthenticationSchemes = "Identity.Application")]
     public class JuegosController : Controller
     {
         private readonly IJuegoRepository _juegoRepository;
